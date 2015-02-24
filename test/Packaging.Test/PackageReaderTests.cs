@@ -7,23 +7,46 @@ using System.Text;
 using System.Threading.Tasks;
 using Test.Utility;
 using Xunit;
+using Xunit.Extensions;
 
 namespace NuGet.Test
 {
     public class PackageReaderTests
     {
         [Fact]
-        public void PackageReader_MinClientVersion()
+        public void PackageReader_NestedReferenceItems()
         {
-            var zip = TestPackages.GetZip(TestPackages.GetLegacyTestPackageMinClient());
+            var zip = TestPackages.GetZip(TestPackages.GetLibSubFolderPackage());
+
+            using (PackageReader reader = new PackageReader(zip))
+            {
+                var groups = reader.GetReferenceItems().ToArray();
+
+                Assert.Equal(1, groups.Count());
+
+                Assert.Equal(NuGetFramework.Parse("net40"), groups[0].TargetFramework);
+                Assert.Equal(2, groups[0].Items.Count());
+                Assert.Equal("lib/net40/test40.dll", groups[0].Items.ToArray()[0]);
+                Assert.Equal("lib/net40/x86/testx86.dll", groups[0].Items.ToArray()[1]);
+            }
+        }
+
+        [Theory]
+        [InlineData("3.0.5-beta", "3.0.5-beta")]
+        [InlineData("2.5", "2.5.0")]
+        [InlineData("2.5-beta", "2.5.0-beta")]
+        public void PackageReader_MinClientVersion(string minClientVersion, string expected)
+        {
+            var zip = TestPackages.GetZip(TestPackages.GetLegacyTestPackageMinClient(minClientVersion));
 
             using (PackageReader reader = new PackageReader(zip))
             {
                 var version = reader.GetMinClientVersion();
 
-                Assert.Equal("3.0.5-beta", version.ToNormalizedString());
+                Assert.Equal(expected, version.ToNormalizedString());
             }
         }
+        
 
         [Fact]
         public void PackageReader_ContentWithMixedFrameworks()

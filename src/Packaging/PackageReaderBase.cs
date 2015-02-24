@@ -52,7 +52,44 @@ namespace NuGet.Packaging
 
         public IEnumerable<FrameworkSpecificGroup> GetBuildItems()
         {
-            return GetFileGroups("build");
+            string id = GetIdentity().Id;
+
+            List<FrameworkSpecificGroup> results = new List<FrameworkSpecificGroup>();
+
+            foreach (FrameworkSpecificGroup group in GetFileGroups("build"))
+            {
+                FrameworkSpecificGroup filteredGroup = group;
+
+                if (group.Items.Any(e => !IsAllowedBuildFile(id, e)))
+                {
+                    // create a new group with only valid files
+                    filteredGroup = new FrameworkSpecificGroup(group.TargetFramework, group.Items.Where(e => IsAllowedBuildFile(id, e)));
+
+                    if (!filteredGroup.Items.Any())
+                    {
+                        // nothing was useful in the folder, skip this group completely
+                        filteredGroup = null;
+                    }
+                }
+
+                if (filteredGroup != null)
+                {
+                    results.Add(filteredGroup);
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// only packageId.targets and packageId.props should be used from the build folder
+        /// </summary>
+        private static bool IsAllowedBuildFile(string packageId, string path)
+        {
+            string file = Path.GetFileName(path);
+
+            return StringComparer.OrdinalIgnoreCase.Equals(file, String.Format(CultureInfo.InvariantCulture, "{0}.targets", packageId)) 
+                || StringComparer.OrdinalIgnoreCase.Equals(file, String.Format(CultureInfo.InvariantCulture, "{0}.props", packageId));
         }
 
         public IEnumerable<FrameworkSpecificGroup> GetToolItems()
@@ -193,10 +230,11 @@ namespace NuGet.Packaging
             Dictionary<NuGetFramework, List<string>> groups = new Dictionary<NuGetFramework, List<string>>(new NuGetFrameworkFullComparer());
 
             bool isContentFolder = StringComparer.OrdinalIgnoreCase.Equals(folder, PackagingConstants.ContentFolder);
+            bool allowSubFolders = true;
 
             foreach (string path in GetFiles(folder))
             {
-                NuGetFramework framework = NuGetFramework.Parse(GetFrameworkFromPath(path, isContentFolder));
+                NuGetFramework framework = NuGetFramework.Parse(GetFrameworkFromPath(path, allowSubFolders));
 
                 // Content allows both random folder names and framework folder names.
                 // It's nearly impossible to tell the difference and stay consistent over

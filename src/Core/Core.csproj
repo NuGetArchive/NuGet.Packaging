@@ -36,9 +36,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Definitions\INuspecCoreReader.cs" />
-    <Compile Include="Definitions\IPackageCoreReader.cs" />
-    <Compile Include="Definitions\IPackageIdentityComparer.cs" />
+    <Compile Include="def\INuspecCoreReader.cs" />
+    <Compile Include="def\IPackageCoreReader.cs" />
+    <Compile Include="def\IPackageIdentityComparer.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HashCodeCombiner.cs" />
     <Compile Include="NuspecCoreReader.cs" />
