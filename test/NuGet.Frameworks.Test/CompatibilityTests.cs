@@ -48,7 +48,7 @@ namespace NuGet.Test
         public void Compatibility_InferredCoreAspLegacy()
         {
             // dnxcore50 -> coreclr -> native
-            var framework1 = NuGetFramework.Parse("aspnetcore50");
+            var framework1 = NuGetFramework.Parse("dnxcore50");
             var framework2 = NuGetFramework.Parse("core50");
 
             var compat = DefaultCompatibilityProvider.Instance;
@@ -135,11 +135,11 @@ namespace NuGet.Test
         [InlineData("net", "native")]
         [InlineData("aspnet", "native")]
         [InlineData("aspnet5", "native")]
-        [InlineData("aspnet50", "net45")]
-        [InlineData("aspnet50", "netcore45")]
-        [InlineData("aspnet50", "native")]
-        //[InlineData("aspnetcore50", "portable-win8+net45+sl4")]
-        [InlineData("aspnetcore50", "native")]
+        [InlineData("dnx451", "net45")]
+        [InlineData("dnx451", "netcore45")]
+        [InlineData("dnx451", "native")]
+        //[InlineData("dnxcore50", "portable-win8+net45+sl4")]
+        [InlineData("dnxcore50", "native")]
         public void Compatibility_OneWayMappings(string fw1, string fw2)
         {
             var framework1 = NuGetFramework.Parse(fw1);

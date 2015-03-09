@@ -61,7 +61,7 @@ namespace NuGet.Test
         [Theory]
         [InlineData("net45", "net450")]
         [InlineData("net45", "net4.5.0")]
-        [InlineData("aspnetcore5", "aspnetcore500")]
+        [InlineData("aspnetcore5", "dnxcore500")]
         [InlineData(".NETFramework, Version=v4.5", "net45")]
         [InlineData("NETFramework, Version=v4.5", "net45")]
         [InlineData("NETFramework, Version=v4.5", "net450")]
