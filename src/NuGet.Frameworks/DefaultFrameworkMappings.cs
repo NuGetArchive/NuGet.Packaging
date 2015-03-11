@@ -178,12 +178,12 @@ namespace NuGet.Frameworks
                                                     FrameworkConstants.CommonFrameworks.DnxCore50),
 
                         // TODO: remove these rules post-RC
-                        // aspnet <-> aspnet50
+                        // aspnet <-> dnx451
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     FrameworkConstants.CommonFrameworks.AspNet,
                                                     FrameworkConstants.CommonFrameworks.AspNet50),
 
-                        // aspnetcore <-> aspnetcore50
+                        // aspnetcore <-> dnxcore50
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     FrameworkConstants.CommonFrameworks.AspNetCore,
                                                     FrameworkConstants.CommonFrameworks.AspNetCore50),

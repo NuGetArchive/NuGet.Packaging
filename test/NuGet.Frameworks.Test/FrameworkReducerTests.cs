@@ -107,7 +107,7 @@ namespace NuGet.Test
                 NuGetFramework.Parse("net40"),
                 NuGetFramework.Parse("net45"),
                 NuGetFramework.Parse("portable-net40%2Bsl5%2Bwp80%2Bwin8%2Bwpa81"),
-                NuGetFramework.Parse("portable-net45%2Bwp80%2Bwin8%2Bwpa81%2Baspnetcore50")
+                NuGetFramework.Parse("portable-net45%2Bwp80%2Bwin8%2Bwpa81%2Bdnxcore50")
             };
 
             FrameworkReducer reducer = new FrameworkReducer();
@@ -490,10 +490,10 @@ namespace NuGet.Test
         }
 
         [Theory]
-        [InlineData("dnx451", "aspnet50")]
+        [InlineData("dnx451", "dnx451")]
         [InlineData("dnx451", "aspnet5")]
         [InlineData("dnx451", "aspnet")]
-        [InlineData("dnx", "aspnet50")]
+        [InlineData("dnx", "dnx451")]
         [InlineData("dnx", "net45")]
         [InlineData("dnx", "portable-net45+win8")]
         [InlineData("dnx", "portable-win8+net45")]
@@ -505,10 +505,10 @@ namespace NuGet.Test
         [InlineData("dnx", "portable-net45+win8")]
         [InlineData("dnx", "portable-win8+net45")]
         [InlineData("dnx", "portable-win8+net45+sl4")]
-        [InlineData("aspnet50", "aspnet50")]
-        [InlineData("aspnet50", "aspnet5")]
-        [InlineData("aspnet50", "aspnet")]
-        [InlineData("aspnet", "aspnet50")]
+        [InlineData("dnx451", "dnx451")]
+        [InlineData("dnx451", "aspnet5")]
+        [InlineData("dnx451", "aspnet")]
+        [InlineData("aspnet", "dnx451")]
         [InlineData("aspnet", "net45")]
         [InlineData("aspnet", "portable-net45+win8")]
         [InlineData("aspnet", "portable-win8+net45")]

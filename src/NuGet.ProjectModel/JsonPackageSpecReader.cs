@@ -236,7 +236,7 @@ namespace NuGet.ProjectModel
                     "frameworks": {
                         "net45": {
                         },
-                        "aspnet50": {
+                        "dnx451": {
                         }
                     }
                 }

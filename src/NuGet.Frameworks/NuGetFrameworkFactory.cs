@@ -294,11 +294,11 @@ namespace NuGet.Frameworks
         {
             framework = null;
 
-            if (StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "aspnet") || StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "aspnet50"))
+            if (StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "aspnet") || StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "dnx451"))
             {
                 framework = FrameworkConstants.CommonFrameworks.AspNet50;
             }
-            else if (StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "aspnetcore") || StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "aspnetcore50"))
+            else if (StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "aspnetcore") || StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "dnxcore50"))
             {
                 framework = FrameworkConstants.CommonFrameworks.AspNetCore50;
             }
