@@ -82,12 +82,11 @@ namespace NuGet.Frameworks
         }
 
 
-        // TODO: should the range be 2D and work on both framework and platform versions?
         private static bool SameExceptForVersion(NuGetFramework x, NuGetFramework y)
         {
             return StringComparer.OrdinalIgnoreCase.Equals(x.Framework, y.Framework)
                 && (StringComparer.OrdinalIgnoreCase.Equals(x.Profile, y.Profile))
-                && (StringComparer.OrdinalIgnoreCase.Equals(x.Platform, y.Platform));
+                && x.Platform.Equals(y.Platform);
         }
 
         public override string ToString()

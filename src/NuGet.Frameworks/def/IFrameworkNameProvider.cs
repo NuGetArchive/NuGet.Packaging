@@ -84,6 +84,12 @@ namespace NuGet.Frameworks
         bool TryGetCompatibilityMappings(NuGetFramework framework, out IEnumerable<FrameworkRange> supportedFrameworkRanges);
 
         /// <summary>
+        /// Returns compatible platforms
+        /// Ex: UAP10.0 -> Windows 8.1
+        /// </summary>
+        bool TryGetPlatformMappings(NuGetTargetPlatform platform, out IEnumerable<NuGetTargetPlatform> compatiblePlatforms);
+
+        /// <summary>
         /// Returns all sub sets of the given framework.
         /// Ex: .NETFramework -> .NETCore
         /// These will have the same version, but a different framework

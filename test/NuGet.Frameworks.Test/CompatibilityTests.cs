@@ -1,6 +1,7 @@
 ﻿using NuGet.Frameworks;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Text;
@@ -12,6 +13,106 @@ namespace NuGet.Test
 {
     public class CompatibilityTests
     {
+        [Fact]
+        public void Compatibility_TPMCompat()
+        {
+            NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
+            NuGetFramework fullTPM = new NuGetFramework("NETFrameworkCore", new Version(5, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
+
+            var compat = DefaultCompatibilityProvider.Instance;
+
+            Assert.True(compat.IsCompatible(framework, fullTPM));
+        }
+
+        [Fact]
+        public void Compatibility_TPMNoCompat()
+        {
+            NuGetFramework netcore = new NuGetFramework("NETFrameworkCore", new Version(5, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
+            NuGetFramework native = new NuGetFramework("native", new Version(0, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
+
+            var compat = DefaultCompatibilityProvider.Instance;
+
+            // native is compatible with netcore
+            Assert.True(compat.IsCompatible(netcore, native));
+
+            // netcore does not work in native
+            Assert.False(compat.IsCompatible(native, netcore));
+        }
+
+        [Fact]
+        public void Compatibility_UAPWin()
+        {
+            NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
+            NuGetFramework fullTPM = new NuGetFramework("NETFrameworkCore", new Version(4, 5, 0, 0), null, "Windows", new Version(8, 0, 0, 0));
+
+            var compat = DefaultCompatibilityProvider.Instance;
+
+            Assert.True(compat.IsCompatible(framework, fullTPM));
+        }
+
+        [Fact]
+        public void Compatibility_UAPWinNonTPM()
+        {
+            NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
+            NuGetFramework windows = NuGetFramework.Parse("win");
+
+            var compat = DefaultCompatibilityProvider.Instance;
+
+            Assert.True(compat.IsCompatible(framework, windows));
+        }
+
+        [Theory]
+        [InlineData("dnxcore50", "UAP10.0")]
+        [InlineData("core50", "UAP10.0")]
+        [InlineData("core", "UAP10.0")]
+        [InlineData("core50", "UAP")]
+        [InlineData("native", "UAP")]
+        [InlineData("net46", "UAP")]
+        public void Compatibility_PlatformOneWayNeg(string fw1, string fw2)
+        {
+            var framework1 = NuGetFramework.Parse(fw1);
+            var framework2 = NuGetFramework.Parse(fw2);
+
+            var compat = DefaultCompatibilityProvider.Instance;
+
+            Assert.False(compat.IsCompatible(framework1, framework2));
+        }
+
+        [Theory]
+        [InlineData("UAP10.0", "netcore45")]
+        [InlineData("UAP10.0", "winrt45")]
+        [InlineData("UAP10.0", "nfcore451")]
+        [InlineData("UAP10.0", "Core50")]
+        [InlineData("UAP10.0", "Core")]
+        [InlineData("UAP10.0", "Win81")]
+        [InlineData("UAP10.0", "Win8")]
+        [InlineData("UAP10.0", "Win")]
+        [InlineData("UAP10.0", "WPA81")]
+        [InlineData("UAP10.0", "WPA")]
+        [InlineData("UAP", "Win81")]
+        [InlineData("UAP", "Win8")]
+        [InlineData("UAP", "Win")]
+        [InlineData("UAP", "WPA81")]
+        [InlineData("UAP", "WPA")]
+        [InlineData("UAP11.0", "Win81")]
+        [InlineData("UAP11.0", "Win8")]
+        [InlineData("UAP11.0", "Win")]
+        [InlineData("UAP11.0", "WPA81")]
+        [InlineData("UAP11.0", "WPA")]
+        public void Compatibility_PlatformOneWay(string fw1, string fw2)
+        {
+            var framework1 = NuGetFramework.Parse(fw1);
+            var framework2 = NuGetFramework.Parse(fw2);
+
+            var compat = DefaultCompatibilityProvider.Instance;
+
+            // verify that compatibility is inferred across all the mappings
+            Assert.True(compat.IsCompatible(framework1, framework2));
+
+            // verify that this was a one way mapping
+            Assert.True(!compat.IsCompatible(framework2, framework1));
+        }
+
         [Theory]
         [InlineData("dnx46", "dnx451")]
         [InlineData("dnx452", "dnx451")]

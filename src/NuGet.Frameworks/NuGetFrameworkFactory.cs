@@ -56,6 +56,14 @@ namespace NuGet.Frameworks
         /// <summary>
         /// Creates a NuGetFramework from a .NET FrameworkName
         /// </summary>
+        public static NuGetFramework ParseFrameworkName(string frameworkName)
+        {
+            return ParseFrameworkName(frameworkName, DefaultFrameworkNameProvider.Instance);
+        }
+
+        /// <summary>
+        /// Creates a NuGetFramework from a .NET FrameworkName
+        /// </summary>
         public static NuGetFramework ParseFrameworkName(string frameworkName, IFrameworkNameProvider mappings)
         {
             if (frameworkName == null)
@@ -96,6 +104,14 @@ namespace NuGet.Frameworks
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Creates a NuGetFramework from a folder name.
+        /// </summary>
+        public static NuGetFramework ParseFolder(string folderName)
+        {
+            return ParseFolder(folderName, DefaultFrameworkNameProvider.Instance);
         }
 
         /// <summary>

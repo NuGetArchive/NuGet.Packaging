@@ -35,6 +35,9 @@ namespace NuGet.Frameworks
         // all compatibility mappings
         private HashSet<OneWayCompatibilityMappingEntry> _compatibilityMappings;
 
+        // platform compatibility mappings
+        private HashSet<OneWayPlatformMappingEntry> _platformCompatibilityMappings;
+
         // subsets, net -> netcore
         private Dictionary<string, HashSet<string>> _subSetFrameworks;
 
@@ -51,6 +54,7 @@ namespace NuGet.Frameworks
             _equivalentProfiles = new Dictionary<string, Dictionary<string, HashSet<string>>>(StringComparer.OrdinalIgnoreCase);
             _subSetFrameworks = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
             _compatibilityMappings = new HashSet<OneWayCompatibilityMappingEntry>(OneWayCompatibilityMappingEntry.Comparer);
+            _platformCompatibilityMappings = new HashSet<OneWayPlatformMappingEntry>();
 
             InitMappings(mappings);
 
@@ -461,6 +465,9 @@ namespace NuGet.Frameworks
 
                     // add subset frameworks
                     AddSubSetFrameworks(mapping.SubSetFrameworks);
+
+                    // add platform mappings
+                    AddPlatformMappings(mapping.PlatformCompatibilityMappings);
                 }
             }
         }
@@ -487,6 +494,17 @@ namespace NuGet.Frameworks
                 foreach (var mapping in mappings)
                 {
                     _compatibilityMappings.Add(mapping);
+                }
+            }
+        }
+
+        private void AddPlatformMappings(IEnumerable<OneWayPlatformMappingEntry> mappings)
+        {
+            if (mappings != null)
+            {
+                foreach (var mapping in mappings)
+                {
+                    _platformCompatibilityMappings.Add(mapping);
                 }
             }
         }
@@ -686,6 +704,7 @@ namespace NuGet.Frameworks
             return supportedFrameworkRanges.Any();
         }
 
+
         public bool TryGetSubSetFrameworks(string frameworkIdentifier, out IEnumerable<string> subSetFrameworks)
         {
             HashSet<string> values = null;
@@ -696,6 +715,23 @@ namespace NuGet.Frameworks
             }
 
             subSetFrameworks = null;
+            return false;
+        }
+
+
+        public bool TryGetPlatformMappings(NuGetTargetPlatform platform, out IEnumerable<NuGetTargetPlatform> compatiblePlatforms)
+        {
+            compatiblePlatforms = null;
+
+            // find all matching platforms with compatibility mappings
+            var foundPlatforms = _platformCompatibilityMappings.Where(m => platform.IsVersionGreaterOrEqualTo(m.Platform)).Select(m => m.CompatiblePlatform);
+
+            if (foundPlatforms.Any())
+            {
+                compatiblePlatforms = foundPlatforms;
+                return true;
+            }
+
             return false;
         }
     }

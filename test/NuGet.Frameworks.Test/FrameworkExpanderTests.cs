@@ -11,6 +11,66 @@ namespace NuGet.Test
     public class FrameworkExpanderTests
     {
         [Fact]
+        public void FrameworkExpander_UAPWPA()
+        {
+            NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
+            NuGetFramework indirect = new NuGetFramework("NETFrameworkCore", new Version(4, 5, 1, 0), null, "WindowsPhone", new Version(8, 1, 0, 0));
+
+            FrameworkExpander expander = new FrameworkExpander();
+            var expanded = expander.Expand(framework).ToArray();
+
+            Assert.True(expanded.Contains(indirect, NuGetFramework.Comparer), String.Join("|", expanded.Select(e => e.ToString())));
+        }
+
+        [Fact]
+        public void FrameworkExpander_UAP()
+        {
+            NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
+            NuGetFramework indirect = new NuGetFramework("NETFrameworkCore", new Version(5, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
+
+            FrameworkExpander expander = new FrameworkExpander();
+            var expanded = expander.Expand(framework).ToArray();
+
+            Assert.True(expanded.Contains(indirect, NuGetFramework.Comparer), String.Join("|", expanded.Select(e => e.ToString())));
+        }
+
+        [Fact]
+        public void FrameworkExpander_UAP2()
+        {
+            NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
+            NuGetFramework indirect = new NuGetFramework("native", new Version(0, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
+
+            FrameworkExpander expander = new FrameworkExpander();
+            var expanded = expander.Expand(framework).ToArray();
+
+            Assert.True(expanded.Contains(indirect, NuGetFramework.Comparer), String.Join("|", expanded.Select(e => e.ToString())));
+        }
+
+        [Fact]
+        public void FrameworkExpander_UAP3()
+        {
+            NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
+            NuGetFramework indirect = new NuGetFramework("native", new Version(0, 0, 0, 0), null);
+
+            FrameworkExpander expander = new FrameworkExpander();
+            var expanded = expander.Expand(framework).ToArray();
+
+            Assert.True(expanded.Contains(indirect, NuGetFramework.Comparer), String.Join("|", expanded.Select(e => e.ToString())));
+        }
+
+        [Fact]
+        public void FrameworkExpander_WinNetCore()
+        {
+            NuGetFramework framework = NuGetFramework.Parse("Win81");
+            NuGetFramework indirect = new NuGetFramework("NETFrameworkCore", new Version(4, 5, 1, 0), null, "Windows", new Version(8, 1, 0, 0));
+
+            FrameworkExpander expander = new FrameworkExpander();
+            var expanded = expander.Expand(framework).ToArray();
+
+            Assert.True(expanded.Contains(indirect, NuGetFramework.Comparer), String.Join("|", expanded.Select(e => e.ToString())));
+        }
+
+        [Fact]
         public void FrameworkExpander_Indirect()
         {
             NuGetFramework framework = NuGetFramework.Parse("win9");
@@ -45,7 +105,7 @@ namespace NuGet.Test
             FrameworkExpander expander = new FrameworkExpander();
             var expanded = expander.Expand(framework).ToArray();
 
-            Assert.Equal<int>(7, expanded.Length);
+            Assert.Equal<int>(10, expanded.Length);
         }
 
         [Fact]

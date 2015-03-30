@@ -85,6 +85,7 @@ namespace NuGet.Frameworks
                         new KeyValuePair<string, string>(FrameworkConstants.FrameworkIdentifiers.CoreCLR, "core"),
                         new KeyValuePair<string, string>(FrameworkConstants.FrameworkIdentifiers.NetCore, "netcore"),   // legacy
                         new KeyValuePair<string, string>(FrameworkConstants.FrameworkIdentifiers.WinRT, "winrt"),       // legacy
+                        new KeyValuePair<string, string>(FrameworkConstants.FrameworkIdentifiers.UAP, "uap"),
                     };
                 }
 
@@ -122,18 +123,28 @@ namespace NuGet.Frameworks
                 {
                     _equivalentFrameworks = new KeyValuePair<NuGetFramework, NuGetFramework>[]
                     {
+                        // UAP10.0 <-> f:nfcore50 p:UAP10.0
+                        new KeyValuePair<NuGetFramework, NuGetFramework>(
+                                                    FrameworkConstants.CommonFrameworks.UAP10,
+                                                    FrameworkConstants.CommonFrameworks.UAP10NFCore50),
+
+                        // UAP 0.0 <-> UAP 10.0
+                        new KeyValuePair<NuGetFramework, NuGetFramework>(
+                                                    new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.UAP, FrameworkConstants.EmptyVersion),
+                                                    FrameworkConstants.CommonFrameworks.UAP10),
+
                         // win <-> win8
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.Windows, FrameworkConstants.EmptyVersion),
                                                     FrameworkConstants.CommonFrameworks.Win8),
 
-                        // win8 <-> f:netcore45 p:win8
+                        // win8 <-> f:nfcore45 p:win8
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     FrameworkConstants.CommonFrameworks.Win8,
                                                     new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 0, 0),
                                                         FrameworkConstants.PlatformIdentifiers.Windows, new Version(8, 0, 0, 0))),
 
-                        // win81 <-> f:netcore451 p:win81
+                        // win81 <-> f:nfcore451 p:win81
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     FrameworkConstants.CommonFrameworks.Win81,
                                                     new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 1, 0),
@@ -193,6 +204,12 @@ namespace NuGet.Frameworks
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.WindowsPhoneApp, FrameworkConstants.EmptyVersion),
                                                     FrameworkConstants.CommonFrameworks.WPA81),
+
+                        // wpa81 <-> f:nfcore451 p:wp81
+                        new KeyValuePair<NuGetFramework, NuGetFramework>(
+                                                    FrameworkConstants.CommonFrameworks.WPA81,
+                                                    new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 1, 0),
+                                                        FrameworkConstants.PlatformIdentifiers.WindowsPhone, new Version(8, 1, 0, 0))),
 
                         // dnx <-> dnx451
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
@@ -342,10 +359,41 @@ namespace NuGet.Frameworks
                             new FrameworkRange(
                                 new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.Native, FrameworkConstants.EmptyVersion),
                                 new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.Native, FrameworkConstants.EmptyVersion))),
+
+                        // NetFrameworkCore50 supports Core50
+                        new OneWayCompatibilityMappingEntry(new FrameworkRange(
+                                new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, FrameworkConstants.Version5),
+                                new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, FrameworkConstants.MaxVersion)),
+                            new FrameworkRange(
+                                new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.CoreCLR, FrameworkConstants.Version5),
+                                new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.CoreCLR, FrameworkConstants.MaxVersion))),
                     };
                 }
 
                 return _compatibilityMappings;
+            }
+        }
+
+        private static OneWayPlatformMappingEntry[] _platformCompatibilityMappings;
+        public IEnumerable<OneWayPlatformMappingEntry> PlatformCompatibilityMappings
+        {
+            get
+            {
+                if (_platformCompatibilityMappings == null)
+                {
+                    _platformCompatibilityMappings = new OneWayPlatformMappingEntry[]
+                    {
+                        // UAP 10.0 -> Windows 8.1
+                        new OneWayPlatformMappingEntry(new NuGetTargetPlatform(FrameworkConstants.PlatformIdentifiers.UAP, FrameworkConstants.Version10),
+                            new NuGetTargetPlatform(FrameworkConstants.PlatformIdentifiers.Windows, new Version(8, 1, 0, 0))),
+
+                        // UAP 10.0 -> WindowsPhone 8.1
+                        new OneWayPlatformMappingEntry(new NuGetTargetPlatform(FrameworkConstants.PlatformIdentifiers.UAP, FrameworkConstants.Version10),
+                            new NuGetTargetPlatform(FrameworkConstants.PlatformIdentifiers.WindowsPhone, new Version(8, 1, 0, 0)))
+                    };
+                }
+
+                return _platformCompatibilityMappings;
             }
         }
 

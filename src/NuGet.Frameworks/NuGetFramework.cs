@@ -15,8 +15,7 @@ namespace NuGet.Frameworks
         private readonly Version _frameworkVersion;
         private readonly string _frameworkProfile;
         private const string _portable = "portable";
-        private readonly string _platformIdentifier;
-        private readonly Version _platformVersion;
+        private readonly NuGetTargetPlatform _platform;
 
         public NuGetFramework(string framework)
             : this(framework, FrameworkConstants.EmptyVersion)
@@ -57,8 +56,16 @@ namespace NuGet.Frameworks
             _frameworkIdentifier = frameworkIdentifier;
             _frameworkVersion = NormalizeVersion(frameworkVersion);
             _frameworkProfile = frameworkProfile ?? string.Empty;
-            _platformIdentifier = platformIdentifier ?? string.Empty;
-            _platformVersion = platformVersion != null ? NormalizeVersion(platformVersion) : FrameworkConstants.EmptyVersion;
+
+            if (String.IsNullOrEmpty(platformIdentifier))
+            {
+                _platform = NuGetTargetPlatform.Empty;
+            }
+            else
+            {
+                Version ver = platformVersion == null ? FrameworkConstants.EmptyVersion : platformVersion;
+                _platform = new NuGetTargetPlatform(platformIdentifier, ver);
+            }
         }
 
         /// <summary>
@@ -106,26 +113,35 @@ namespace NuGet.Frameworks
         }
 
         /// <summary>
-        /// Platform
-        /// Ex: Windows
+        /// Target Platform Moniker
         /// </summary>
-        public string Platform
+        public NuGetTargetPlatform Platform
         {
             get
             {
-                return _platformIdentifier;
+                return _platform;
             }
         }
 
         /// <summary>
-        /// Version of Platform
-        /// Ex: 8.1 for Windows 8.1
+        /// Platform identifier
+        /// </summary>
+        public string PlatformIdentifier
+        {
+            get
+            {
+                return _platform.Platform;
+            }
+        }
+
+        /// <summary>
+        /// Platform version
         /// </summary>
         public Version PlatformVersion
         {
             get
             {
-                return _platformVersion;
+                return _platform.Version;
             }
         }
 
@@ -301,13 +317,13 @@ namespace NuGet.Frameworks
         }
 
         /// <summary>
-        /// Framework agnostic check
+        /// Empty platform check
         /// </summary>
-        public bool AnyPlatform
+        public bool HasPlatform
         {
             get
             {
-                return String.IsNullOrEmpty(Platform);
+                return !Platform.IsEmpty;
             }
         }
 
@@ -381,9 +397,9 @@ namespace NuGet.Frameworks
         {
             StringBuilder sb = new StringBuilder(DotNetFrameworkName);
 
-            if (!String.IsNullOrEmpty(Platform))
+            if (HasPlatform)
             {
-                sb.Append(String.Format(CultureInfo.InvariantCulture, ", Platform={0}, PlatformVersion=v{1}", Platform, GetDisplayVersion(PlatformVersion)));
+                sb.Append(String.Format(CultureInfo.InvariantCulture, ", Platform={0}, PlatformVersion=v{1}", PlatformIdentifier, GetDisplayVersion(PlatformVersion)));
             }
 
             return sb.ToString();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using HashCombiner = NuGet.Frameworks.HashCodeCombiner;
@@ -10,13 +11,13 @@ namespace NuGet.Frameworks
         private readonly IFrameworkNameProvider _mappings;
         private readonly FrameworkExpander _expander;
         private static readonly NuGetFrameworkFullComparer _fullComparer = new NuGetFrameworkFullComparer();
-        private readonly Dictionary<int, bool> _cache;
+        private readonly ConcurrentDictionary<int, bool> _cache;
 
         public CompatibilityProvider(IFrameworkNameProvider mappings)
         {
             _mappings = mappings;
             _expander = new FrameworkExpander(mappings);
-            _cache = new Dictionary<int, bool>();
+            _cache = new ConcurrentDictionary<int, bool>();
         }
 
         /// <summary>
@@ -37,33 +38,13 @@ namespace NuGet.Frameworks
                 throw new ArgumentNullException("other");
             }
 
-            bool? result = null;
-
             // check the cache for a solution
             int cacheKey = GetCacheKey(framework, other);
 
-            lock (_cache)
+            bool? result = _cache.GetOrAdd(cacheKey, (key) =>
             {
-                bool cachedResult = false;
-                if (_cache.TryGetValue(cacheKey, out cachedResult))
-                {
-                    result = cachedResult;
-                }
-            }
-
-            if (result == null)
-            {
-                result = IsCompatibleCore(framework, other);
-
-                lock (_cache)
-                {
-                    // double check that the result hasn't been cached by another thread
-                    if (!_cache.ContainsKey(cacheKey))
-                    {
-                        _cache.Add(cacheKey, result == true);
-                    }
-                }
-            }
+                return IsCompatibleCore(framework, other) == true;
+            });
 
             return result == true;
         }
@@ -174,36 +155,76 @@ namespace NuGet.Frameworks
         protected virtual bool? FrameworkCompare(NuGetFramework framework, NuGetFramework other)
         {
             // find all possible substitutions
-            HashSet<NuGetFramework> frameworkSet = new HashSet<NuGetFramework>(NuGetFramework.Comparer) { framework };
+            List<NuGetFramework> frameworkSet = new List<NuGetFramework>() { framework };
+            frameworkSet.AddRange(_expander.Expand(framework));
 
-            foreach (var fw in _expander.Expand(framework))
-            {
-                frameworkSet.Add(fw);
-            }
+            List<NuGetFramework> otherSet = new List<NuGetFramework>() { other };
+            otherSet.AddRange(GetEquivalentFrameworks(other));
 
-            // check all possible substitutions
-            foreach (var curFramework in frameworkSet)
+            // check for compat
+            foreach (var curOther in otherSet)
             {
-                // compare the frameworks
-                if (NuGetFramework.FrameworkNameComparer.Equals(curFramework, other)
-                    && StringComparer.OrdinalIgnoreCase.Equals(curFramework.Profile, other.Profile)
-                    && IsVersionCompatible(curFramework, other))
+                if (frameworkSet.Any(f => FrameworkCompareCore(f, curOther)))
                 {
-                    // allow the other if it doesn't have a platform
-                    if (other.AnyPlatform)
-                    {
-                        return true;
-                    }
-
-                    // compare platforms
-                    if (StringComparer.OrdinalIgnoreCase.Equals(curFramework.Platform, other.Platform))
-                    {
-                        return IsVersionCompatible(curFramework.PlatformVersion, other.PlatformVersion);
-                    }
+                    return true;
                 }
             }
 
             return false;
+        }
+
+        private bool FrameworkCompareCore(NuGetFramework framework, NuGetFramework other)
+        {
+            // compare the frameworks
+            if (NuGetFramework.FrameworkNameComparer.Equals(framework, other)
+                && StringComparer.OrdinalIgnoreCase.Equals(framework.Profile, other.Profile)
+                && IsVersionCompatible(framework, other))
+            {
+                // allow the other if it doesn't have a platform
+                if (!other.HasPlatform)
+                {
+                    return true;
+                }
+
+                // if both have platforms, perform a full platform check
+                if (framework.HasPlatform && framework.Platform.IsVersionGreaterOrEqualTo(other.Platform))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private IEnumerable<NuGetFramework> GetEquivalentFrameworks(NuGetFramework framework)
+        {
+            // add the current framework to the seen list to avoid returning it later
+            HashSet<NuGetFramework> seen = new HashSet<NuGetFramework>() { framework };
+
+            Stack<NuGetFramework> toExpand = new Stack<NuGetFramework>();
+            toExpand.Push(framework);
+
+            while (toExpand.Count > 0)
+            {
+                var frameworkToExpand = toExpand.Pop();
+
+                IEnumerable<NuGetFramework> compatibleFrameworks = null;
+
+                if (_mappings.TryGetEquivalentFrameworks(frameworkToExpand, out compatibleFrameworks))
+                {
+                    foreach (var curFramework in compatibleFrameworks)
+                    {
+                        if (seen.Add(curFramework))
+                        {
+                            yield return curFramework;
+
+                            toExpand.Push(curFramework);
+                        }
+                    }
+                }
+            }
+
+            yield break;
         }
 
         private bool IsVersionCompatible(NuGetFramework framework, NuGetFramework other)

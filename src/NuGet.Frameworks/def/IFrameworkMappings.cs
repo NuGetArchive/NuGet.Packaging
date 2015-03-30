@@ -53,5 +53,12 @@ namespace NuGet.Frameworks
         /// Ex: .NETFramework -supports-> Native
         /// </summary>
         IEnumerable<OneWayCompatibilityMappingEntry> CompatibilityMappings { get; }
+
+        /// <summary>
+        /// Compatible Platform mappings
+        /// Ex: UAP -> Windows
+        /// Ex: UAP -> WindowsPhone
+        /// </summary>
+        IEnumerable<OneWayPlatformMappingEntry> PlatformCompatibilityMappings { get; }
     }
 }

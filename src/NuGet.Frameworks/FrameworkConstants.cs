@@ -9,6 +9,7 @@ namespace NuGet.Frameworks
         public static readonly Version EmptyVersion = new Version(0, 0, 0, 0);
         public static readonly Version MaxVersion = new Version(Int32.MaxValue, 0, 0, 0);
         public static readonly Version Version5 = new Version(5, 0, 0, 0);
+        public static readonly Version Version10 = new Version(10, 0, 0, 0);
 
         public static class SpecialIdentifiers
         {
@@ -21,6 +22,7 @@ namespace NuGet.Frameworks
         {
             public const string WindowsPhone = "WindowsPhone";
             public const string Windows = "Windows";
+            public const string UAP = "UAP";
         }
 
         public static class FrameworkIdentifiers
@@ -51,6 +53,7 @@ namespace NuGet.Frameworks
             public const string XamarinPlayStationVita = "Xamarin.PlayStationVita";
             public const string XamarinXbox360 = "Xamarin.Xbox360";
             public const string XamarinXboxOne = "Xamarin.XboxOne";
+            public const string UAP = "UAP";
         }
 
         /// <summary>
@@ -95,6 +98,13 @@ namespace NuGet.Frameworks
 
             public static readonly NuGetFramework Core = new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.CoreCLR, EmptyVersion);
             public static readonly NuGetFramework Core50 = new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.CoreCLR, Version5);
+
+            public static readonly NuGetFramework UAP10 = new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.UAP, Version10);
+
+            public static readonly NuGetFramework UAP10NFCore50 = new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, 
+                Version5,
+                FrameworkConstants.FrameworkIdentifiers.UAP,
+                Version10);
         }
 
         // public const RegexOptions RegexFlags = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture;
