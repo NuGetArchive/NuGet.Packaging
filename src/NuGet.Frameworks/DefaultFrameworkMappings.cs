@@ -397,6 +397,25 @@ namespace NuGet.Frameworks
             }
         }
 
+        private static string[] _frameworkPrecedence;
+        public IEnumerable<string> FrameworkPrecedence
+        {
+            get
+            {
+                if (_frameworkPrecedence == null)
+                {
+                    _frameworkPrecedence = new string[]
+                    {
+                        FrameworkConstants.FrameworkIdentifiers.Net,
+                        FrameworkConstants.FrameworkIdentifiers.Windows,
+                        FrameworkConstants.FrameworkIdentifiers.WindowsPhoneApp,
+                    };
+                }
+
+                return _frameworkPrecedence;
+            }
+        }
+
         private static IFrameworkMappings _instance;
         /// <summary>
         /// Singleton instance of the default framework mappings.

@@ -60,5 +60,14 @@ namespace NuGet.Frameworks
         /// Ex: UAP -> WindowsPhone
         /// </summary>
         IEnumerable<OneWayPlatformMappingEntry> PlatformCompatibilityMappings { get; }
+
+
+        /// <summary>
+        /// Ordered list of framework identifiers. The first framework in the list will be preferred over other 
+        /// framework identifiers. This is enable better tie breaking in scenarios where legacy frameworks are 
+        /// equivalently compatible to a new framework.
+        /// Example: UAP10.0 -> win81, wpa81
+        /// </summary>
+        IEnumerable<string> FrameworkPrecedence { get; }
     }
 }

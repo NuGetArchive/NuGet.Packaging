@@ -110,20 +110,23 @@ namespace NuGet.Frameworks
                     }
                 }
 
-                Debug.Assert(reduced.Count() < 2, "Unable to find the nearest framework: " + String.Join(", ", reduced));
-
                 // if we have reduced down to a single framework, use that
                 if (reduced.Count() == 1)
                 {
                     nearest = reduced.Single();
                 }
 
-                // this should be a very rare occurrence
-                // at this point we are unable to decide between the remaining frameworks in any useful way
-                // just take the first one by rev alphabetical order if we can't narrow it down at all
-                if (nearest != null && reduced.Any())
+                // at this point we should have a single framework unless the mappings 
+                // have given us several equally compatible frameworks which can happen 
+                // in UAP with windows and windows phone. To choose one call the 
+                // mapping provider which may contain additional logic to solve this.
+                if (nearest == null && reduced.Any())
                 {
-                    nearest = reduced.OrderByDescending(f => f.Framework, StringComparer.OrdinalIgnoreCase).ThenBy(f => f.GetHashCode()).First();
+                    List<NuGetFramework> sortedList = new List<NuGetFramework>(reduced);
+
+                    sortedList.Sort(new Comparison<NuGetFramework>(_mappings.CompareFrameworks));
+
+                    nearest = sortedList.First();
                 }
             }
 

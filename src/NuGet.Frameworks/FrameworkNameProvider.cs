@@ -41,6 +41,8 @@ namespace NuGet.Frameworks
         // subsets, net -> netcore
         private Dictionary<string, HashSet<string>> _subSetFrameworks;
 
+        private List<string> _frameworkPrecedence;
+
         public FrameworkNameProvider(IEnumerable<IFrameworkMappings> mappings, IEnumerable<IPortableFrameworkMappings> portableMappings)
         {
             _identifierSynonyms = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -55,6 +57,7 @@ namespace NuGet.Frameworks
             _subSetFrameworks = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
             _compatibilityMappings = new HashSet<OneWayCompatibilityMappingEntry>(OneWayCompatibilityMappingEntry.Comparer);
             _platformCompatibilityMappings = new HashSet<OneWayPlatformMappingEntry>();
+            _frameworkPrecedence = new List<string>();
 
             InitMappings(mappings);
 
@@ -468,6 +471,9 @@ namespace NuGet.Frameworks
 
                     // add platform mappings
                     AddPlatformMappings(mapping.PlatformCompatibilityMappings);
+
+                    // add framework ordering rules
+                    AddFrameworkPrecedenceMappings(mapping.FrameworkPrecedence);
                 }
             }
         }
@@ -696,6 +702,12 @@ namespace NuGet.Frameworks
             }
         }
 
+        // Ordered lists of framework identifiers
+        public void AddFrameworkPrecedenceMappings(IEnumerable<string> mappings)
+        {
+            // TODO: handle merging multiple rule sets properly here
+            _frameworkPrecedence.AddRange(mappings);
+        }
 
         public bool TryGetCompatibilityMappings(NuGetFramework framework, out IEnumerable<FrameworkRange> supportedFrameworkRanges)
         {
@@ -733,6 +745,56 @@ namespace NuGet.Frameworks
             }
 
             return false;
+        }
+
+        // Order the frameworks if rules exist, this is used for cases where the normal rules 
+        // no longer work and a tie has occurred.
+        public int CompareFrameworks(NuGetFramework x, NuGetFramework y)
+        {
+            // Using the ordered list of frameworks choose the framework that matches first
+            if (!StringComparer.OrdinalIgnoreCase.Equals(x.Framework, y.Framework))
+            {
+                foreach (string identifier in _frameworkPrecedence)
+                {
+                    if (StringComparer.OrdinalIgnoreCase.Equals(x.Framework, identifier))
+                    {
+                        return -1;
+                    }
+                    else if (StringComparer.OrdinalIgnoreCase.Equals(y.Framework, identifier))
+                    {
+                        return 1;
+                    }
+                }
+            }
+
+            // to make this deterministic order based on the rest of the properties
+            int result = StringComparer.OrdinalIgnoreCase.Compare(x.Framework, y.Framework);
+
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = x.Version.CompareTo(y.Version);
+
+            if (result != 0)
+            {
+                return result;
+            }
+
+            // favor the framework with a platform
+            if (x.HasPlatform && !y.HasPlatform)
+            {
+                return -1;
+            }
+
+            if (!x.HasPlatform && y.HasPlatform)
+            {
+                return 1;
+            }
+
+            // due to the rules this is a complete tie, but one must be selected
+            return x.GetHashCode().CompareTo(y.GetHashCode());
         }
     }
 }

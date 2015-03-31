@@ -12,6 +12,106 @@ namespace NuGet.Test
     public class FrameworkReducerTests
     {
         [Fact]
+        public void FrameworkReducer_GetNearestUAPTie()
+        {
+            FrameworkReducer reducer = new FrameworkReducer();
+
+            var project = NuGetFramework.Parse("UAP10.0");
+
+            var win81 = NuGetFramework.Parse("win81");
+            var wpa81 = NuGetFramework.Parse("wpa81");
+            var native = NuGetFramework.Parse("native");
+            var netcore = NuGetFramework.Parse("netcore");
+            var net45 = NuGetFramework.Parse("net45");
+
+            var all = new NuGetFramework[] { native, netcore, win81, net45, wpa81 };
+
+            var result = reducer.GetNearest(project, all);
+
+            Assert.Equal(win81, result);
+        }
+
+        [Fact]
+        public void FrameworkReducer_GetNearestUAPTie2()
+        {
+            FrameworkReducer reducer = new FrameworkReducer();
+
+            var project = NuGetFramework.Parse("UAP10.0");
+
+            var win = NuGetFramework.Parse("win");
+            var wpa81 = NuGetFramework.Parse("wpa81");
+            var native = NuGetFramework.Parse("native");
+            var netcore = NuGetFramework.Parse("netcore");
+            var net45 = NuGetFramework.Parse("net45");
+
+            var all = new NuGetFramework[] { native, netcore, win, net45, wpa81 };
+
+            var result = reducer.GetNearest(project, all);
+
+            Assert.Equal(win, result);
+        }
+
+        [Fact]
+        public void FrameworkReducer_GetNearestUAP()
+        {
+            FrameworkReducer reducer = new FrameworkReducer();
+
+            var project = NuGetFramework.Parse("UAP10.0");
+
+            var win81 = NuGetFramework.Parse("win81");
+            var win = NuGetFramework.Parse("win");
+            var native = NuGetFramework.Parse("native");
+            var netcore = NuGetFramework.Parse("netcore");
+            var net45 = NuGetFramework.Parse("net45");
+
+            var all = new NuGetFramework[] { native, netcore, win81, net45, win };
+
+            var result = reducer.GetNearest(project, all);
+
+            Assert.Equal(win81, result);
+        }
+
+        [Fact]
+        public void FrameworkReducer_GetNearestUAPCore()
+        {
+            FrameworkReducer reducer = new FrameworkReducer();
+
+            var project = NuGetFramework.Parse("UAP10.0");
+
+            var native = NuGetFramework.Parse("native");
+            var core50 = NuGetFramework.Parse("core50");
+            var dnx451 = NuGetFramework.Parse("dnx451");
+            var dnxcore50 = NuGetFramework.Parse("dnxcore50");
+            var net45 = NuGetFramework.Parse("net45");
+
+            var all = new NuGetFramework[] { native, core50, dnx451, dnxcore50, net45 };
+
+            var result = reducer.GetNearest(project, all);
+
+            Assert.Equal(core50, result);
+        }
+
+        [Fact]
+        public void FrameworkReducer_GetNearestUAPNative()
+        {
+            FrameworkReducer reducer = new FrameworkReducer();
+
+            var project = NuGetFramework.Parse("UAP10.0");
+
+            var native = NuGetFramework.Parse("native");
+            var dnx451 = NuGetFramework.Parse("dnx451");
+            var dnxcore50 = NuGetFramework.Parse("dnxcore50");
+            var net45 = NuGetFramework.Parse("net45");
+
+            var all = new NuGetFramework[] { native, dnx451, dnxcore50, net45 };
+
+            var result = reducer.GetNearest(project, all);
+
+            Assert.Equal(native, result);
+        }
+
+
+        [Fact]
         public void FrameworkReducer_GetNearestNetCore()
         {
             FrameworkReducer reducer = new FrameworkReducer();
