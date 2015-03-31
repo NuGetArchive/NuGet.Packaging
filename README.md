@@ -1,7 +1,3 @@
-![NuGet logo](https://raw.githubusercontent.com/NuGet/Home/master/resources/nuget.png)
-
-----
-
 # NuGet.Packaging
 
 [![nuget-volatile MyGet Build Status](https://www.myget.org/BuildSource/Badge/nuget-volatile?identifier=98de9302-4796-4b96-9fbd-cb1517f2d1fa)](https://www.myget.org/)
@@ -17,6 +13,6 @@ The [NuGet Docs](http://docs.nuget.org) cover NuGet packaging in more detail:
 
 ## Feedback
 
-We removed the issues link from this repo, please file bugs at home instead. 
+We removed the issues link from this repo, please file bugs at [home](https://github.com/nuget/home) instead. 
 
 Check out the [contributing](http://docs.nuget.org/contribute) page to see the best places to log issues and start discussions. The [NuGet Home](https://github.com/NuGet/Home) repo provides an overview of the different NuGet projects available.
