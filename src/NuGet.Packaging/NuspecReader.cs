@@ -157,7 +157,7 @@ namespace NuGet.Packaging
 
         public string GetLanguage()
         {
-            var node = MetadataNode.Elements(XName.Get(Language, MetadataNode.GetDefaultNamespace().NamespaceName)).SingleOrDefault();
+            var node = MetadataNode.Elements(XName.Get(Language, MetadataNode.GetDefaultNamespace().NamespaceName)).FirstOrDefault();
             return node == null ? null : node.Value;
         }
 

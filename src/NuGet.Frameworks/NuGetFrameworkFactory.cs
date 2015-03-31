@@ -87,8 +87,8 @@ namespace NuGet.Frameworks
                 Version version = new Version(0, 0);
                 string profile = null;
 
-                string versionPart = parts.Where(s => s.IndexOf("Version=", StringComparison.OrdinalIgnoreCase) == 0).SingleOrDefault();
-                string profilePart = parts.Where(s => s.IndexOf("Profile=", StringComparison.OrdinalIgnoreCase) == 0).SingleOrDefault();
+                string versionPart = SingleOrDefaultSafe(parts.Where(s => s.IndexOf("Version=", StringComparison.OrdinalIgnoreCase) == 0));
+                string profilePart = SingleOrDefaultSafe(parts.Where(s => s.IndexOf("Profile=", StringComparison.OrdinalIgnoreCase) == 0));
 
                 if (!String.IsNullOrEmpty(versionPart))
                 {
@@ -373,6 +373,16 @@ namespace NuGet.Frameworks
             }
 
             return framework != null;
+        }
+
+        private static string SingleOrDefaultSafe(IEnumerable<string> items)
+        {
+            if (items.Count() == 1)
+            {
+                return items.Single();
+            }
+
+            return null;
         }
     }
 }

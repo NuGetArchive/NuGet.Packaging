@@ -157,12 +157,12 @@ namespace NuGet.Packaging
             if (referenceGroups.Any())
             {
                 // the 'any' group from references, for pre2.5 nuspecs this will be the only group
-                var fallbackGroup = referenceGroups.Where(g => g.TargetFramework.Equals(NuGetFramework.AnyFramework)).SingleOrDefault();
+                var fallbackGroup = referenceGroups.Where(g => g.TargetFramework.Equals(NuGetFramework.AnyFramework)).FirstOrDefault();
 
                 foreach (FrameworkSpecificGroup fileGroup in fileGroups)
                 {
                     // check for a matching reference group to use for filtering
-                    var referenceGroup = referenceGroups.Where(g => g.TargetFramework.Equals(fileGroup.TargetFramework)).SingleOrDefault();
+                    var referenceGroup = referenceGroups.Where(g => g.TargetFramework.Equals(fileGroup.TargetFramework)).FirstOrDefault();
 
                     if (referenceGroup == null)
                     {
