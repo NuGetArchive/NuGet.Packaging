@@ -1,0 +1,24 @@
+﻿{
+    "version": "3.0.0-*",
+    "dependencies": {
+        "NuGet.Versioning": "3.0.0-*",
+        "NuGet.Packaging": "3.0.0-*",
+        "Newtonsoft.Json": "6.0.6"
+    },
+
+    "frameworks": {
+        "net45": {
+            "frameworkAssemblies": {
+                "System.IO.Compression": { "version": "", "type": "build" },
+                "System.Xml": { "version": "", "type": "build" },
+                "System.Xml.Linq": { "version": "", "type": "build" }
+            }
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "System.Xml.XDocument": "4.0.10-beta-*",
+                "System.IO.Compression": "4.0.0-*"
+            }
+        }
+    }
+}
