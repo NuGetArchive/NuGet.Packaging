@@ -295,6 +295,7 @@ namespace NuGet.ProjectModel
 
             frameworkAssemblies.ForEach(d => targetFrameworkInformation.Dependencies.Add(d));
 
+            targetFrameworkInformation.Properties = properties;
 
             packageSpec.TargetFrameworks.Add(targetFrameworkInformation);
 
