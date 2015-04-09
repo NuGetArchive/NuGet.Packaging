@@ -132,10 +132,10 @@ namespace NuGet.Packaging
             if (version != null && version.Version.Revision < 1)
             {
                 // If the build or revision number is not set, we need to look for combinations of the format
-                // * Foo.1.2.nupkg
-                // * Foo.1.2.3.nupkg
-                // * Foo.1.2.0.nupkg
-                // * Foo.1.2.0.0.nupkg
+                // * MyPackage.1.2.nupkg
+                // * MyPackage.1.2.3.nupkg
+                // * MyPackage.1.2.0.nupkg
+                // * MyPackage.1.2.0.0.nupkg
                 // To achieve this, we would look for files named 1.2*.nupkg if both build and revision are 0 and
                 // 1.2.3*.nupkg if only the revision is set to 0.
                 string partialName = version.Version.Build < 1 ?
