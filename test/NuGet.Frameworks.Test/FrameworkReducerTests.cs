@@ -92,22 +92,22 @@ namespace NuGet.Test
         }
 
         [Fact]
-        public void FrameworkReducer_GetNearestUAPNative()
+        public void FrameworkReducer_GetNearestUAPCore50()
         {
             FrameworkReducer reducer = new FrameworkReducer();
 
             var project = NuGetFramework.Parse("UAP10.0");
 
-            var native = NuGetFramework.Parse("native");
+            var core = NuGetFramework.Parse("core50");
             var dnx451 = NuGetFramework.Parse("dnx451");
             var dnxcore50 = NuGetFramework.Parse("dnxcore50");
             var net45 = NuGetFramework.Parse("net45");
 
-            var all = new NuGetFramework[] { native, dnx451, dnxcore50, net45 };
+            var all = new NuGetFramework[] { core, dnx451, dnxcore50, net45 };
 
             var result = reducer.GetNearest(project, all);
 
-            Assert.Equal(native, result);
+            Assert.Equal(core, result);
         }
 
 
@@ -174,14 +174,14 @@ namespace NuGet.Test
         {
             FrameworkReducer reducer = new FrameworkReducer();
 
-            var native = NuGetFramework.Parse("native");
-            var win81 = NuGetFramework.Parse("win81");
+            var dnxcore50 = NuGetFramework.Parse("dnxcore50");
+            var core50 = NuGetFramework.Parse("core50");
 
-            var all = new NuGetFramework[] { win81, native };
+            var all = new NuGetFramework[] { dnxcore50, core50 };
 
             var result = reducer.GetNearest(NuGetFramework.AnyFramework, all);
 
-            Assert.Equal(win81, result);
+            Assert.Equal(dnxcore50, result);
         }
 
         [Fact]
@@ -245,6 +245,26 @@ namespace NuGet.Test
 
             // net45+win8 is nearest. it beats net40+win81 since it is a known framework
             Assert.Equal(packageFrameworks[0], nearest);
+        }
+
+        [Fact]
+        public void FrameworkReducer_GetNearestPCLtoPCLVersions()
+        {
+            var project = NuGetFramework.Parse("portable-net45+win81");
+
+            var packageFrameworks = new List<NuGetFramework>()
+            {
+                NuGetFramework.Parse("portable-net40+win81+sl5"),
+                NuGetFramework.Parse("portable-net45+win8+sl5"),
+                NuGetFramework.Parse("portable-net45+win81+wpa81+monotouch+monoandroid"),
+            };
+
+            FrameworkReducer reducer = new FrameworkReducer();
+
+            var nearest = reducer.GetNearest(project, packageFrameworks);
+
+            // portable-net45+win81+wpa81+monotouch+monoandroid is nearest to the original
+            Assert.Equal(packageFrameworks[2], nearest);
         }
 
         [Fact]

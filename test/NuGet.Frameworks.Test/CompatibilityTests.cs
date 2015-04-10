@@ -28,15 +28,15 @@ namespace NuGet.Test
         public void Compatibility_TPMNoCompat()
         {
             NuGetFramework netcore = new NuGetFramework("NETFrameworkCore", new Version(5, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
-            NuGetFramework native = new NuGetFramework("native", new Version(0, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
+            NuGetFramework core = new NuGetFramework("CoreCLR", new Version(5, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
 
             var compat = DefaultCompatibilityProvider.Instance;
 
             // native is compatible with netcore
-            Assert.True(compat.IsCompatible(netcore, native));
+            Assert.True(compat.IsCompatible(netcore, core));
 
             // netcore does not work in native
-            Assert.False(compat.IsCompatible(native, netcore));
+            Assert.False(compat.IsCompatible(core, netcore));
         }
 
         [Fact]
@@ -249,7 +249,7 @@ namespace NuGet.Test
         {
             // dnxcore50 -> coreclr -> native
             var framework1 = NuGetFramework.Parse("dnxcore50");
-            var framework2 = NuGetFramework.Parse("native");
+            var framework2 = NuGetFramework.Parse("core50");
 
             var compat = DefaultCompatibilityProvider.Instance;
 
@@ -315,14 +315,10 @@ namespace NuGet.Test
         }
 
         [Theory]
-        [InlineData("net45", "native")]
-        [InlineData("net", "native")]
-        [InlineData("dnx46", "native")]
-        [InlineData("dnx452", "native")]
+        [InlineData("dnx451", "net4")]
+        [InlineData("dnx451", "net451")]
         [InlineData("dnx451", "net45")]
         [InlineData("dnx451", "nfcore45")]
-        [InlineData("dnx451", "native")]
-        [InlineData("dnxcore50", "native")]
         public void Compatibility_OneWayMappings(string fw1, string fw2)
         {
             var framework1 = NuGetFramework.Parse(fw1);

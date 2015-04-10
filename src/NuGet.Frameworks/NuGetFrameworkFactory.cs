@@ -56,14 +56,6 @@ namespace NuGet.Frameworks
         /// <summary>
         /// Creates a NuGetFramework from a .NET FrameworkName
         /// </summary>
-        public static NuGetFramework ParseFrameworkName(string frameworkName)
-        {
-            return ParseFrameworkName(frameworkName, DefaultFrameworkNameProvider.Instance);
-        }
-
-        /// <summary>
-        /// Creates a NuGetFramework from a .NET FrameworkName
-        /// </summary>
         public static NuGetFramework ParseFrameworkName(string frameworkName, IFrameworkNameProvider mappings)
         {
             if (frameworkName == null)
@@ -107,7 +99,7 @@ namespace NuGet.Frameworks
         }
 
         /// <summary>
-        /// Creates a NuGetFramework from a folder name.
+        /// Creates a NuGetFramework from a folder name using the default mappings.
         /// </summary>
         public static NuGetFramework ParseFolder(string folderName)
         {
@@ -206,15 +198,21 @@ namespace NuGet.Frameworks
             switch (s)
             {
                 case "45":
+                case "4.5":
                     framework = FrameworkConstants.CommonFrameworks.Net45;
                     break;
                 case "40":
+                case "4.0":
+                case "4":
                     framework = FrameworkConstants.CommonFrameworks.Net4;
                     break;
                 case "35":
+                case "3.5":
                     framework = FrameworkConstants.CommonFrameworks.Net35;
                     break;
                 case "20":
+                case "2":
+                case "2.0":
                     framework = FrameworkConstants.CommonFrameworks.Net2;
                     break;
             }

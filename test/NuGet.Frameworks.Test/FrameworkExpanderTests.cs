@@ -35,22 +35,10 @@ namespace NuGet.Test
         }
 
         [Fact]
-        public void FrameworkExpander_UAP2()
+        public void FrameworkExpander_UAPToCoreIndirectMapping()
         {
             NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
-            NuGetFramework indirect = new NuGetFramework("native", new Version(0, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
-
-            FrameworkExpander expander = new FrameworkExpander();
-            var expanded = expander.Expand(framework).ToArray();
-
-            Assert.True(expanded.Contains(indirect, NuGetFramework.Comparer), String.Join("|", expanded.Select(e => e.ToString())));
-        }
-
-        [Fact]
-        public void FrameworkExpander_UAP3()
-        {
-            NuGetFramework framework = NuGetFramework.Parse("UAP10.0");
-            NuGetFramework indirect = new NuGetFramework("native", new Version(0, 0, 0, 0), null);
+            NuGetFramework indirect = new NuGetFramework("CoreCLR", new Version(5, 0, 0, 0), null, "UAP", new Version(10, 0, 0, 0));
 
             FrameworkExpander expander = new FrameworkExpander();
             var expanded = expander.Expand(framework).ToArray();
@@ -90,11 +78,10 @@ namespace NuGet.Test
             FrameworkExpander expander = new FrameworkExpander();
             var expanded = expander.Expand(framework).ToArray();
 
-            Assert.Equal(4, expanded.Length);
+            Assert.Equal(3, expanded.Length);
             Assert.Equal(".NETFramework, Version=v4.5, Profile=Client", expanded[0].ToString());
             Assert.Equal(".NETFramework, Version=v4.5, Profile=Full", expanded[1].ToString());
             Assert.Equal("NETFrameworkCore, Version=v4.5", expanded[2].ToString());
-            Assert.Equal("native, Version=v0.0", expanded[3].ToString());
         }
 
         [Fact]
@@ -105,7 +92,7 @@ namespace NuGet.Test
             FrameworkExpander expander = new FrameworkExpander();
             var expanded = expander.Expand(framework).ToArray();
 
-            Assert.Equal<int>(10, expanded.Length);
+            Assert.Equal<int>(8, expanded.Length);
         }
 
         [Fact]
@@ -116,8 +103,7 @@ namespace NuGet.Test
             FrameworkExpander expander = new FrameworkExpander();
             var expanded = expander.Expand(framework).ToArray();
 
-            Assert.Equal(1, expanded.Length);
-            Assert.Equal("native, Version=v0.0", expanded[0].ToString());
+            Assert.Equal(0, expanded.Length);
         }
     }
 }
