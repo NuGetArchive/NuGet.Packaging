@@ -98,8 +98,8 @@ namespace NuGet.Test
             frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5, 0, 0)));
             frameworks.Add(new NuGetFramework(".nETframework", new Version(4, 5, 0, 0), string.Empty));
 
-            frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5), null, null, new Version(0, 0)));
-            frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5), string.Empty, string.Empty, new Version(0, 0)));
+            frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5), null, null));
+            frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5), string.Empty, string.Empty));
 
             foreach (var fw1 in frameworks)
             {
@@ -124,7 +124,7 @@ namespace NuGet.Test
             frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5, 0), null));
             frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5, 0), string.Empty));
 
-            frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5, 0, 0), null, new Version(0, 0)));
+            frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5, 0, 0), null));
             frameworks.Add(new NuGetFramework(".NETFramework", new Version(4, 5, 0, 0), string.Empty));
 
             foreach (var fw1 in frameworks)
@@ -138,5 +138,16 @@ namespace NuGet.Test
                 }
             }
         }
+
+        [Theory]
+        [InlineData(".NETFramework", "3.5", "win81-x86", "net35~win81-x86")]
+        [InlineData("CoreCLR", "5.0", "linux-x86", "core5~linux-x86")]
+        [InlineData("CoreCLR", "5.0", "darwin-universal", "core5~darwin-universal")]
+        public void NuGetFramework_RendersRuntimeIdentifierInShortFolderString(string frameworkId, string frameworkVersion, string runtimeIdentifier, string expectedFolderName)
+        {
+            var fx = new NuGetFramework(frameworkId, Version.Parse(frameworkVersion), null, runtimeIdentifier);
+
+            Assert.Equal(expectedFolderName, fx.GetShortFolderName());
+        } 
     }
 }

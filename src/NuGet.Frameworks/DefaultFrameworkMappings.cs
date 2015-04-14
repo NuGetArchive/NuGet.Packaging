@@ -127,17 +127,17 @@ namespace NuGet.Frameworks
                                                     new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.Windows, FrameworkConstants.EmptyVersion),
                                                     FrameworkConstants.CommonFrameworks.Win8),
 
-                        // win8 <-> f:netcore45 p:win8
+                        // win8 <-> f:nfcore45 r:win8-anycpu
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     FrameworkConstants.CommonFrameworks.Win8,
-                                                    new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 0, 0),
-                                                        FrameworkConstants.PlatformIdentifiers.Windows, new Version(8, 0, 0, 0))),
+                                                    new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 0, 0), null,
+                                                        FrameworkConstants.RuntimeIdentifiers.Windows8AnyCpu)),
 
-                        // win81 <-> f:netcore451 p:win81
+                        // win81 <-> f:nfcore451 r:win81-anycpu
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     FrameworkConstants.CommonFrameworks.Win81,
-                                                    new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 1, 0),
-                                                        FrameworkConstants.PlatformIdentifiers.Windows, new Version(8, 1, 0, 0))),
+                                                    new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 1, 0), null,
+                                                        FrameworkConstants.RuntimeIdentifiers.Windows81AnyCpu)),
 
                         // win8 <-> netcore45
                         new KeyValuePair<NuGetFramework, NuGetFramework>(

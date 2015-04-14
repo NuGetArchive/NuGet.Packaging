@@ -171,16 +171,13 @@ namespace NuGet.Frameworks
                     && IsVersionCompatible(curFramework, other))
                 {
                     // allow the other if it doesn't have a platform
-                    if (other.AnyPlatform)
+                    if (other.AnyRuntime)
                     {
                         return true;
                     }
 
-                    // compare platforms
-                    if (StringComparer.OrdinalIgnoreCase.Equals(curFramework.Platform, other.Platform))
-                    {
-                        return IsVersionCompatible(curFramework.PlatformVersion, other.PlatformVersion);
-                    }
+                    // compare runtimes
+                    return StringComparer.OrdinalIgnoreCase.Equals(curFramework.RuntimeIdentifier, other.RuntimeIdentifier);
                 }
             }
 

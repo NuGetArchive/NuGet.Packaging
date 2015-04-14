@@ -145,7 +145,7 @@ namespace NuGet.Frameworks
                 // if any parts of the version are over 9 we need to use decimals
                 bool useDecimals = versionParts.Any(x => x > 9);
 
-                // remove all trailing zeros
+                // remove all trailing zeros, past the first two digits
                 while (versionParts.Count > 0 && versionParts.Peek() <= 0)
                 {
                     versionParts.Pop();

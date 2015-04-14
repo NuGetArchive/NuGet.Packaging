@@ -87,7 +87,7 @@ namespace NuGet.Frameworks
         {
             return StringComparer.OrdinalIgnoreCase.Equals(x.Framework, y.Framework)
                 && (StringComparer.OrdinalIgnoreCase.Equals(x.Profile, y.Profile))
-                && (StringComparer.OrdinalIgnoreCase.Equals(x.Platform, y.Platform));
+                && (StringComparer.OrdinalIgnoreCase.Equals(x.RuntimeIdentifier, y.RuntimeIdentifier));
         }
 
         public override string ToString()

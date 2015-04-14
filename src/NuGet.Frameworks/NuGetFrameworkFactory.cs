@@ -129,7 +129,7 @@ namespace NuGet.Frameworks
                 // assume this is unsupported unless we find a match
                 result = UnsupportedFramework;
 
-                Tuple<string, string, string> parts = RawParse(folderName);
+                Tuple<string, string, string, string> parts = RawParse(folderName);
 
                 if (parts != null)
                 {
@@ -157,17 +157,17 @@ namespace NuGet.Frameworks
                                 if (mappings.TryGetPortableProfile(clientFrameworks, out profileNumber))
                                 {
                                     string portableProfileNumber = FrameworkNameHelpers.GetPortableProfileNumberString(profileNumber);
-                                    result = new NuGetFramework(framework, version, portableProfileNumber);
+                                    result = new NuGetFramework(framework, version, portableProfileNumber, parts.Item4);
                                 }
                                 else
                                 {
                                     // TODO: should this be unsupported?
-                                    result = new NuGetFramework(framework, version, profileShort);
+                                    result = new NuGetFramework(framework, version, profileShort, parts.Item4);
                                 }
                             }
                             else
                             {
-                                result = new NuGetFramework(framework, version, profile);
+                                result = new NuGetFramework(framework, version, profile, parts.Item4);
                             }
                         }
                     }
@@ -220,11 +220,12 @@ namespace NuGet.Frameworks
             return framework != null;
         }
 
-        private static Tuple<string, string, string> RawParse(string s)
+        private static Tuple<string, string, string, string> RawParse(string s)
         {
             string identifier = string.Empty;
             string profile = string.Empty;
             string version = null;
+            string runtime = null;
 
             char[] chars = s.ToCharArray();
 
@@ -245,51 +246,70 @@ namespace NuGet.Frameworks
                 return null;
             }
 
-            int profileStart = versionStart;
+            int versionEnd = versionStart;
 
-            while (profileStart < chars.Length && IsDigitOrDot(chars[profileStart]))
+            while (versionEnd < chars.Length && IsDigitOrDot(chars[versionEnd]))
             {
-                profileStart++;
+                versionEnd++;
             }
 
-            int versionLength = profileStart - versionStart;
+            int versionLength = versionEnd - versionStart;
 
             if (versionLength > 0)
             {
                 version = s.Substring(versionStart, versionLength);
             }
 
-            if (profileStart < chars.Length)
+            if (versionEnd < chars.Length)
             {
-                if (chars[profileStart] == '-')
-                {
-                    int actualProfileStart = profileStart + 1;
+                int runtimeStart = versionEnd;
 
-                    if (actualProfileStart == chars.Length)
+                // Try to parse the profile
+                if (chars[versionEnd] == '-')
+                {
+                    int profileStart = versionEnd + 1;
+
+                    if (profileStart == chars.Length)
                     {
                         // empty profiles are not allowed
                         return null;
                     }
 
-                    profile = s.Substring(actualProfileStart, s.Length - actualProfileStart);
-
-                    foreach (char c in profile.ToArray())
+                    // Find the end of the profile
+                    int profileEnd = profileStart;
+                    while (profileEnd < chars.Length && chars[profileEnd] != '~')
                     {
-                        // validate the profile string to AZaz09-+.
-                        if (!IsValidProfileChar(c))
+                        profileEnd++;
+                    }
+
+                    profile = s.Substring(profileStart, profileEnd - profileStart);
+
+                    foreach(char c in profile)
+                    {
+                        if(!IsValidProfileChar(c))
                         {
                             return null;
                         }
                     }
+
+                    // Move the cursor for checking for the runtime name.
+                    runtimeStart = profileEnd;
                 }
-                else
+
+                if (runtimeStart < chars.Length)
                 {
-                    // invalid profile
-                    return null;
+                    // Try to parse the runtime
+                    if (chars[runtimeStart] == '~')
+                    {
+                        int actualRuntimeStart = runtimeStart + 1;
+
+                        // The rest of the string is the runtime!
+                        runtime = s.Substring(actualRuntimeStart);
+                    }
                 }
             }
 
-            return new Tuple<string, string, string>(identifier, version, profile);
+            return new Tuple<string, string, string, string>(identifier, version, profile, runtime);
         }
 
         private static bool IsLetterOrDot(char c)
@@ -355,7 +375,7 @@ namespace NuGet.Frameworks
             {
                 framework = FrameworkConstants.CommonFrameworks.Dnx451;
             }
-            else if (StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "dnxcore") 
+            else if (StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "dnxcore")
                 || StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "dnxcore50")
                 || StringComparer.OrdinalIgnoreCase.Equals(frameworkString, "dnxcore5"))
             {

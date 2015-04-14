@@ -230,5 +230,23 @@ namespace NuGet.Test
         {
             Assert.Equal("Profile259", NuGetFramework.Parse(framework).Profile);
         }
+
+        [Theory]
+        [InlineData("net45", "net45", "")] // No runtime ID
+        [InlineData("net45~win81-x86", "net45", "win81-x86")] // Simple runtime ID
+        [InlineData("net40-client~win81-x86", "net40-client", "win81-x86")] // Runtime ID and profile 
+        [InlineData("core50~this-is-a-long-runtime-and.it.even.has.dots", "core50", "this-is-a-long-runtime-and.it.even.has.dots")] // We don't parse runtime IDs
+        public void NuGetFramework_ParseRuntimeIdTest(string folderName, string frameworkShortName, string runtimeIdentifier)
+        {
+            // Parse just the framework short name
+            var expectedFx = NuGetFramework.Parse(frameworkShortName);
+
+            // Parse the whole folder name
+            var actual = NuGetFramework.Parse(folderName);
+
+            // Check the results
+            Assert.Equal(expectedFx.DotNetFrameworkName, actual.DotNetFrameworkName);
+            Assert.Equal(runtimeIdentifier, actual.RuntimeIdentifier);
+        }
     }
 }

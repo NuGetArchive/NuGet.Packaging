@@ -15,8 +15,7 @@ namespace NuGet.Frameworks
         private readonly Version _frameworkVersion;
         private readonly string _frameworkProfile;
         private const string _portable = "portable";
-        private readonly string _platformIdentifier;
-        private readonly Version _platformVersion;
+        private readonly string _runtimeIdentifier;
 
         public NuGetFramework(string framework)
             : this(framework, FrameworkConstants.EmptyVersion)
@@ -31,18 +30,12 @@ namespace NuGet.Frameworks
         }
 
         public NuGetFramework(string framework, Version version, string profile)
-            : this(framework, version, profile, null, null)
+            : this(framework, version, profile, null)
         {
 
         }
 
-        public NuGetFramework(string frameworkIdentifier, Version frameworkVersion, string platformIdentifier, Version platformVersion)
-            : this(frameworkIdentifier, frameworkVersion, null, platformIdentifier, platformVersion)
-        {
-
-        }
-
-        public NuGetFramework(string frameworkIdentifier, Version frameworkVersion, string frameworkProfile, string platformIdentifier, Version platformVersion)
+        public NuGetFramework(string frameworkIdentifier, Version frameworkVersion, string frameworkProfile, string runtimeIdentifier)
         {
             if (frameworkIdentifier == null)
             {
@@ -57,8 +50,7 @@ namespace NuGet.Frameworks
             _frameworkIdentifier = frameworkIdentifier;
             _frameworkVersion = NormalizeVersion(frameworkVersion);
             _frameworkProfile = frameworkProfile ?? string.Empty;
-            _platformIdentifier = platformIdentifier ?? string.Empty;
-            _platformVersion = platformVersion != null ? NormalizeVersion(platformVersion) : FrameworkConstants.EmptyVersion;
+            _runtimeIdentifier = runtimeIdentifier ?? string.Empty;
         }
 
         /// <summary>
@@ -95,6 +87,17 @@ namespace NuGet.Frameworks
         }
 
         /// <summary>
+        /// True if the runtime identifier is non-empty
+        /// </summary>
+        public bool HasRuntime
+        {
+            get
+            {
+                return !String.IsNullOrEmpty(RuntimeIdentifier);
+            }
+        }
+
+        /// <summary>
         /// Target framework profile
         /// </summary>
         public string Profile
@@ -106,26 +109,13 @@ namespace NuGet.Frameworks
         }
 
         /// <summary>
-        /// Platform
-        /// Ex: Windows
+        /// Identifies the runtime (if any) that is targetted by this framework. For example: win81-x86
         /// </summary>
-        public string Platform
+        public string RuntimeIdentifier
         {
             get
             {
-                return _platformIdentifier;
-            }
-        }
-
-        /// <summary>
-        /// Version of Platform
-        /// Ex: 8.1 for Windows 8.1
-        /// </summary>
-        public Version PlatformVersion
-        {
-            get
-            {
-                return _platformVersion;
+                return _runtimeIdentifier;
             }
         }
 
@@ -247,6 +237,13 @@ namespace NuGet.Frameworks
                         sb.Append(shortProfile);
                     }
                 }
+
+                // add the runtime
+                if(HasRuntime)
+                {
+                    sb.Append("~");
+                    sb.Append(RuntimeIdentifier);
+                }
             }
             else
             {
@@ -301,13 +298,13 @@ namespace NuGet.Frameworks
         }
 
         /// <summary>
-        /// Framework agnostic check
+        /// Runtime agnostic check
         /// </summary>
-        public bool AnyPlatform
+        public bool AnyRuntime
         {
             get
             {
-                return String.IsNullOrEmpty(Platform);
+                return String.IsNullOrEmpty(RuntimeIdentifier);
             }
         }
 
@@ -381,9 +378,9 @@ namespace NuGet.Frameworks
         {
             StringBuilder sb = new StringBuilder(DotNetFrameworkName);
 
-            if (!String.IsNullOrEmpty(Platform))
+            if (!String.IsNullOrEmpty(RuntimeIdentifier))
             {
-                sb.Append(String.Format(CultureInfo.InvariantCulture, ", Platform={0}, PlatformVersion=v{1}", Platform, GetDisplayVersion(PlatformVersion)));
+                sb.Append(String.Format(CultureInfo.InvariantCulture, ", Runtime={0}", RuntimeIdentifier));
             }
 
             return sb.ToString();

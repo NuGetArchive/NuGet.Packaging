@@ -17,10 +17,14 @@ namespace NuGet.Frameworks
             public const string Unsupported = "Unsupported";
         }
 
-        public static class PlatformIdentifiers
+        public static class RuntimeIdentifiers
         {
-            public const string WindowsPhone = "WindowsPhone";
-            public const string Windows = "Windows";
+            public const string WindowsPhone81 = "wp81";
+            public const string Windows = "win";
+            public const string Windows8 = Windows + "8";
+            public const string Windows81 = Windows + "81";
+            public const string Windows8AnyCpu = Windows8 + "-anycpu";
+            public const string Windows81AnyCpu = Windows81 + "-anycpu";
         }
 
         public static class FrameworkIdentifiers
