@@ -46,8 +46,7 @@ namespace NuGet.Packaging
             //     1) A package suffix that matches the package's language, with a dot preceding it
             //     2) A dependency on the package with the same Id minus the language suffix
             //     3) The dependency can be found by Id in the repository (as its path is needed for installation)
-            // Example: foo.ja-jp, with a dependency on foo
-
+            // Example: something.ja-jp, with a dependency on something
             string packageId = nuspecReader.GetId();
             packageLanguage = nuspecReader.GetLanguage();
             string localruntimePackageId = null;
