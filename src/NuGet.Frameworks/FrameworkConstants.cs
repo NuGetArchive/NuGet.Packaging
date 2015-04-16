@@ -23,8 +23,6 @@ namespace NuGet.Frameworks
             public const string Windows = "win";
             public const string Windows8 = Windows + "8";
             public const string Windows81 = Windows + "81";
-            public const string Windows8AnyCpu = Windows8 + "-anycpu";
-            public const string Windows81AnyCpu = Windows81 + "-anycpu";
         }
 
         public static class FrameworkIdentifiers

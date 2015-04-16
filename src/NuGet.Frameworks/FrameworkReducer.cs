@@ -93,7 +93,7 @@ namespace NuGet.Frameworks
 
                         if (reduced.Count() > 1)
                         {
-                            // For scenarios where we are unable to decide between PCLs, choose the PCL with the 
+                            // For scenarios where we are unable to decide between PCLs, choose the PCL with the
                             // least frameworks. Less frameworks means less compatibility which means it is nearer to the target.
                             reduced = OrderPCL(reduced).Take(1);
                         }
