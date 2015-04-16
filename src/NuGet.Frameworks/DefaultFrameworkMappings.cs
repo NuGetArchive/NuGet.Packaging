@@ -127,13 +127,13 @@ namespace NuGet.Frameworks
                                                     new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.Windows, FrameworkConstants.EmptyVersion),
                                                     FrameworkConstants.CommonFrameworks.Win8),
 
-                        // win8 <-> f:nfcore45 r:win8-anycpu
+                        // win8 <-> f:nfcore45 r:win8
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     FrameworkConstants.CommonFrameworks.Win8,
                                                     new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 0, 0), null,
                                                         FrameworkConstants.RuntimeIdentifiers.Windows8)),
 
-                        // win81 <-> f:nfcore451 r:win81-anycpu
+                        // win81 <-> f:nfcore451 r:win81
                         new KeyValuePair<NuGetFramework, NuGetFramework>(
                                                     FrameworkConstants.CommonFrameworks.Win81,
                                                     new NuGetFramework(FrameworkConstants.FrameworkIdentifiers.NetFrameworkCore, new Version(4, 5, 1, 0), null,
