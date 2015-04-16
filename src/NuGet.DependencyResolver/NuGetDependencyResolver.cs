@@ -105,7 +105,7 @@ namespace NuGet.DependencyResolver
                 return libraryDependencies;
             }
 
-            if (frameworkAssemblies.TargetFramework.AnyPlatform && !targetFramework.IsDesktop())
+            if (frameworkAssemblies.TargetFramework.AnyRuntime && !targetFramework.IsDesktop())
             {
                 // REVIEW: This isn't 100% correct since none *can* mean 
                 // any in theory, but in practice it means .NET full reference assembly
