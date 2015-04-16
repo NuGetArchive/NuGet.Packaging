@@ -2,6 +2,8 @@
 project.lock.json
 artifacts/
 
+.vs/
+
 nupkgs/
 
 # User-specific files
