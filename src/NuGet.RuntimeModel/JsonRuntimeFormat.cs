@@ -51,7 +51,6 @@ namespace NuGet.RuntimeModel
             var graph = new RuntimeGraph();
             foreach (var runtimeSpec in EachProperty(json["runtimes"]).Select(ReadRuntimeDescription))
             {
-                Console.WriteLine("Adding " + runtimeSpec.RuntimeIdentifier);
                 graph.Runtimes.Add(runtimeSpec.RuntimeIdentifier, runtimeSpec);
             }
             return graph;
@@ -72,7 +71,7 @@ namespace NuGet.RuntimeModel
             var value = new JObject();
             json[data.RuntimeIdentifier] = value;
             value["#import"] = new JArray(data.InheritedRuntimes.Select(x => new JValue(x)));
-            foreach (var x in data.AdditionalDependencies)
+            foreach (var x in data.AdditionalDependencies.Values)
             {
                 WriteRuntimeDependencySet(value, x);
             }
@@ -82,7 +81,7 @@ namespace NuGet.RuntimeModel
         {
             var value = new JObject();
             json[data.Id] = value;
-            foreach (var x in data.Dependencies)
+            foreach (var x in data.Dependencies.Values)
             {
                 WritePackageDependency(value, x);
             }
@@ -119,12 +118,9 @@ namespace NuGet.RuntimeModel
 
         private static RuntimeDependencySet ReadRuntimeDependencySet(KeyValuePair<string, JToken> json)
         {
-            var set = new RuntimeDependencySet(json.Key);
-            foreach (var dependency in EachProperty(json.Value).Select(ReadRuntimePackageDependency))
-            {
-                set.Dependencies.Add(dependency);
-            }
-            return set;
+            return new RuntimeDependencySet(
+                json.Key,
+                EachProperty(json.Value).Select(ReadRuntimePackageDependency));
         }
 
         private static RuntimePackageDependency ReadRuntimePackageDependency(KeyValuePair<string, JToken> json)

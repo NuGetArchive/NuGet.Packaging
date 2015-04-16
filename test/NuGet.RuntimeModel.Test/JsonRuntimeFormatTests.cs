@@ -40,10 +40,10 @@ namespace NuGet.RuntimeModel.Test
 }";
 
             Assert.Equal(
-                new RuntimeGraph(new Dictionary<string, RuntimeDescription>()
+                new RuntimeGraph(new []
                 {
-                    ["any"] = new RuntimeDescription("any"),
-                    ["win8-x86"] = new RuntimeDescription("win8-x86", new[]
+                    new RuntimeDescription("any"),
+                    new RuntimeDescription("win8-x86", new[]
                         {
                             "win8",
                             "win7-x86"
@@ -52,7 +52,7 @@ namespace NuGet.RuntimeModel.Test
                                 new RuntimePackageDependency("Some.Package.For.win8-x86", new NuGetVersion("4.2"))
                             })
                         }),
-                    ["win8"] = new RuntimeDescription("win8", new[] { "win7" })
+                    new RuntimeDescription("win8", new[] { "win7" })
                 }), ParseRuntimeJsonString(content));
         }
 

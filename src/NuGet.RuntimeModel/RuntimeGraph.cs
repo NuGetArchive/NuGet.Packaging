@@ -14,9 +14,30 @@ namespace NuGet.RuntimeModel
             Runtimes = new Dictionary<string, RuntimeDescription>();
         }
 
-        public RuntimeGraph(IDictionary<string, RuntimeDescription> runtimes)
+        public RuntimeGraph(IEnumerable<RuntimeDescription> runtimes)
         {
-            Runtimes = new Dictionary<string, RuntimeDescription>(runtimes);
+            Runtimes = runtimes.ToDictionary(r => r.RuntimeIdentifier);
+        }
+
+        /// <summary>
+        /// Merges the content of the other runtime graph in to this runtime graph
+        /// </summary>
+        /// <param name="other">The other graph to merge in to this graph</param>
+        public void MergeIn(RuntimeGraph other)
+        {
+            foreach(var otherRuntime in other.Runtimes.Values)
+            {
+                // Check if we already have the runtime defined
+                RuntimeDescription myRuntime;
+                if(Runtimes.TryGetValue(otherRuntime.RuntimeIdentifier, out myRuntime))
+                {
+                    myRuntime.MergeIn(otherRuntime);
+                }
+                else
+                {
+                    Runtimes.Add(otherRuntime.RuntimeIdentifier, otherRuntime);
+                }
+            }
         }
 
         public bool Equals(RuntimeGraph other) => other != null && other.Runtimes
