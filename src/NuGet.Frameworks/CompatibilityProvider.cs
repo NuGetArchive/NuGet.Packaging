@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NuGet.RuntimeModel;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,15 @@ namespace NuGet.Frameworks
         private readonly IFrameworkNameProvider _mappings;
         private readonly FrameworkExpander _expander;
         private static readonly NuGetFrameworkFullComparer _fullComparer = new NuGetFrameworkFullComparer();
-        private readonly ConcurrentDictionary<int, bool> _cache;
+        private readonly ConcurrentDictionary<Tuple<NuGetFramework, NuGetFramework>, bool> _cache;
+        private readonly RuntimeGraph _runtimeGraph;
 
-        public CompatibilityProvider(IFrameworkNameProvider mappings)
+        public CompatibilityProvider(IFrameworkNameProvider mappings, RuntimeGraph runtimeGraph)
         {
             _mappings = mappings;
             _expander = new FrameworkExpander(mappings);
-            _cache = new ConcurrentDictionary<int, bool>();
+            _cache = new ConcurrentDictionary<Tuple<NuGetFramework, NuGetFramework>, bool>();
+            _runtimeGraph = runtimeGraph;
         }
 
         /// <summary>
@@ -39,11 +42,9 @@ namespace NuGet.Frameworks
             }
 
             // check the cache for a solution
-            int cacheKey = GetCacheKey(framework, other);
-
-            bool? result = _cache.GetOrAdd(cacheKey, (key) =>
+            bool? result = _cache.GetOrAdd(Tuple.Create(framework, other), (key) =>
             {
-                return IsCompatibleCore(framework, other) == true;
+                return IsCompatibleCore(framework, other);
             });
 
             return result == true;
@@ -52,7 +53,7 @@ namespace NuGet.Frameworks
         /// <summary>
         /// Actual compatibility check without caching
         /// </summary>
-        protected virtual bool? IsCompatibleCore(NuGetFramework framework, NuGetFramework other)
+        protected virtual bool IsCompatibleCore(NuGetFramework framework, NuGetFramework other)
         {
             bool? result = null;
 
@@ -73,16 +74,18 @@ namespace NuGet.Frameworks
                 // PCL compat logic
                 if (framework.IsPCL || other.IsPCL)
                 {
-                    result = PCLCompare(framework, other);
+                    return PCLCompare(framework, other);
                 }
                 else
                 {
                     // regular framework compat check
-                    result = FrameworkCompare(framework, other);
+                    return FrameworkCompare(framework, other);
                 }
             }
-
-            return result;
+            else
+            {
+                return result.Value;
+            }
         }
 
         protected virtual bool? SpecialFrameworkCompare(NuGetFramework framework, NuGetFramework other)
@@ -111,7 +114,7 @@ namespace NuGet.Frameworks
             return null;
         }
 
-        protected virtual bool? PCLCompare(NuGetFramework framework, NuGetFramework other)
+        protected virtual bool PCLCompare(NuGetFramework framework, NuGetFramework other)
         {
             // TODO: PCLs can only depend on other PCLs?
             if (framework.IsPCL && !other.IsPCL)
@@ -146,13 +149,13 @@ namespace NuGet.Frameworks
             return PCLInnerCompare(frameworks, otherFrameworks);
         }
 
-        private bool? PCLInnerCompare(IEnumerable<NuGetFramework> profileFrameworks, IEnumerable<NuGetFramework> otherProfileFrameworks)
+        private bool PCLInnerCompare(IEnumerable<NuGetFramework> profileFrameworks, IEnumerable<NuGetFramework> otherProfileFrameworks)
         {
             // TODO: Does this check need to make sure multiple frameworks aren't matched against a single framework from the other list?
             return profileFrameworks.Count() <= otherProfileFrameworks.Count() && profileFrameworks.All(f => otherProfileFrameworks.Any(ff => IsCompatible(f, ff)));
         }
 
-        protected virtual bool? FrameworkCompare(NuGetFramework framework, NuGetFramework other)
+        protected virtual bool FrameworkCompare(NuGetFramework framework, NuGetFramework other)
         {
             // find all possible substitutions
             HashSet<NuGetFramework> frameworkSet = new HashSet<NuGetFramework>(NuGetFramework.Comparer) { framework };
@@ -175,13 +178,31 @@ namespace NuGet.Frameworks
                     {
                         return true;
                     }
+                    else if(curFramework.AnyRuntime)
+                    {
+                        // Runtime-less frameworks are always incompatible with runtimed frameworks
+                        return false;
+                    }
 
                     // compare runtimes
-                    return StringComparer.OrdinalIgnoreCase.Equals(curFramework.RuntimeIdentifier, other.RuntimeIdentifier);
+                    return RuntimesCompatible(curFramework.RuntimeIdentifier, other.RuntimeIdentifier);
                 }
             }
 
             return false;
+        }
+
+        private bool RuntimesCompatible(string curRuntime, string otherRuntime)
+        {
+            // Exact match?
+            if(string.Equals(curRuntime, otherRuntime, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            // Now try to find any match in the graph
+            // We can skip the first one since it was checked at the beginning
+            return _runtimeGraph.ExpandRuntime(curRuntime).Skip(1).Any(expandedRuntime => string.Equals(expandedRuntime, otherRuntime, StringComparison.Ordinal));
         }
 
         private bool IsVersionCompatible(NuGetFramework framework, NuGetFramework other)
@@ -192,18 +213,6 @@ namespace NuGet.Frameworks
         private bool IsVersionCompatible(Version framework, Version other)
         {
             return other == FrameworkConstants.EmptyVersion || other <= framework;
-        }
-
-        private static int GetCacheKey(NuGetFramework framework, NuGetFramework other)
-        {
-            HashCombiner combiner = new HashCombiner();
-
-            // create the cache key from the hash codes of both frameworks
-            // the order is important here since compatibility is usually one way
-            combiner.AddObject(framework);
-            combiner.AddObject(other);
-
-            return combiner.CombinedHash;
         }
     }
 }

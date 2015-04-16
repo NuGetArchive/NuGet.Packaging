@@ -7,7 +7,7 @@
     },
 
     "frameworks": {
-        "dnx451": {
+        "net45": {
             "frameworkAssemblies": {
                 "System.Collections": ""
             }

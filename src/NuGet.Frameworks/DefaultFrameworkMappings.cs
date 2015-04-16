@@ -9,7 +9,7 @@ namespace NuGet.Frameworks
 {
     public sealed class DefaultFrameworkMappings : IFrameworkMappings
     {
-        public DefaultFrameworkMappings()
+        private DefaultFrameworkMappings()
         {
 
         }

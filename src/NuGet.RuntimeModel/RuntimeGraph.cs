@@ -40,6 +40,37 @@ namespace NuGet.RuntimeModel
             }
         }
 
+        public IEnumerable<string> ExpandRuntime(string runtime)
+        {
+            // Could this be faster? Sure! But we can refactor once it works and has tests
+
+            yield return runtime;
+
+            // Try to expand the runtime based on the graph
+            var deduper = new HashSet<string>();
+            var expansions = new List<string>();
+            deduper.Add(runtime);
+            expansions.Add(runtime);
+            for(int i = 0; i < expansions.Count; i++)
+            {
+                // expansions.Count will keep growing as we add items, but thats OK, we want to expand until we stop getting new items
+                RuntimeDescription desc;
+                if(Runtimes.TryGetValue(expansions[i], out desc))
+                {
+                    // Add the inherited runtimes to the list
+                    foreach(var inheritedRuntime in desc.InheritedRuntimes)
+                    {
+                        if (deduper.Add(inheritedRuntime))
+                        {
+                            yield return inheritedRuntime;
+                            expansions.Add(inheritedRuntime);
+                        }
+                    }
+                }
+            }
+
+        }
+
         public bool Equals(RuntimeGraph other) => other != null && other.Runtimes
             .OrderBy(pair => pair.Key)
             .SequenceEqual(other.Runtimes.OrderBy(pair => pair.Key));

@@ -97,5 +97,23 @@ namespace NuGet.RuntimeModel.Test
                 }),
             }), leftGraph);
         }
+
+        [Theory]
+        [InlineData("win7", "win7")]
+        [InlineData("win8", "win8,win7")]
+        [InlineData("win8-x86", "win8-x86,win8,win7-x86,win7")]
+        public void ExpandShouldExpandRuntimeBasedOnGraph(string start, string expanded)
+        {
+            var graph = new RuntimeGraph(new[]
+            {
+                new RuntimeDescription("win8-x86", new [] { "win8", "win7-x86" }),
+                new RuntimeDescription("win8", new [] { "win7" }),
+                new RuntimeDescription("win7-x86", new [] { "win7" }),
+                new RuntimeDescription("win7"),
+            });
+            Assert.Equal(
+                expanded.Split(','),
+                graph.ExpandRuntime(start).ToArray());
+        }
     }
 }

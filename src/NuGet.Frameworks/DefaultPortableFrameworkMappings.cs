@@ -11,7 +11,7 @@ namespace NuGet.Frameworks
     /// </summary>
     public class DefaultPortableFrameworkMappings : IPortableFrameworkMappings
     {
-        public DefaultPortableFrameworkMappings()
+        private DefaultPortableFrameworkMappings()
         {
 
         }
