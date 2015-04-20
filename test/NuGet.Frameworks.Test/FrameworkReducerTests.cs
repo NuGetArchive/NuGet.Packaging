@@ -1,4 +1,5 @@
 ﻿using NuGet.Frameworks;
+using NuGet.RuntimeModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -668,6 +669,31 @@ namespace NuGet.Test
             var result = reducer.GetNearest(projectFramework, frameworks);
 
             Assert.Null(result);
+        }
+
+        [Theory]
+        [InlineData("core50~win7,core50~win8", "core50~win8-x86", "core50~win8")]
+        public void FrameworkReducer_GetNearestRuntimes(string items, string requested, string expected)
+        {
+            var graph = new RuntimeGraph(new[]
+            {
+                new RuntimeDescription("win8-x86", new [] { "win8", "win7-x86" }),
+                new RuntimeDescription("win8", new [] { "win7" }),
+                new RuntimeDescription("win7-x86", new [] { "win7" }),
+                new RuntimeDescription("win7"),
+            });
+
+            // Build the list of items
+            var frameworks = items
+                .Split(',')
+                .Select(NuGetFramework.Parse)
+                .ToArray();
+            
+            // Determine the result
+            var reducer = new FrameworkReducer();
+            var result = reducer.GetNearest(NuGetFramework.Parse(requested), frameworks);
+
+            Assert.Equal(expected, result.GetShortFolderName());
         }
     }
 }

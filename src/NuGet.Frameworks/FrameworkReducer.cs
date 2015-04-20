@@ -27,15 +27,30 @@ namespace NuGet.Frameworks
 
         }
 
+        public FrameworkReducer(RuntimeGraph graph)
+            : this(DefaultFrameworkNameProvider.Instance, DefaultCompatibilityProvider.Instance, graph)
+        {
+        }
+
         /// <summary>
         /// Creates a FrameworkReducer using custom framework mappings.
         /// </summary>
         public FrameworkReducer(IFrameworkNameProvider mappings, IFrameworkCompatibilityProvider compat)
+            : this(mappings, compat, new RuntimeGraph())
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a FrameworkReducer using custom framework mappings.
+        /// </summary>
+        public FrameworkReducer(IFrameworkNameProvider mappings, IFrameworkCompatibilityProvider compat, RuntimeGraph runtimeGraph)
         {
             _mappings = mappings;
             _compat = compat;
             _fullComparer = new NuGetFrameworkFullComparer();
             _fwNameComparer = new NuGetFrameworkNameComparer();
+            _runtimeGraph = runtimeGraph;
         }
 
         /// <summary>
