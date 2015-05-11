@@ -1,4 +1,6 @@
-﻿namespace NuGet.RuntimeModel
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+namespace NuGet.RuntimeModel
 {
     /// <summary>
     /// Hash code creator, based on the original NuGet hash code combiner/ASP hash code combiner implementations, and then slightly improved for usage in C# 6 Expression-bodied members
