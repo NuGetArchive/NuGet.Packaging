@@ -4,7 +4,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using HashCombiner = NuGet.Frameworks.HashCodeCombiner;
 
 namespace NuGet.Frameworks
 {
@@ -13,13 +12,13 @@ namespace NuGet.Frameworks
         private readonly IFrameworkNameProvider _mappings;
         private readonly FrameworkExpander _expander;
         private static readonly NuGetFrameworkFullComparer _fullComparer = new NuGetFrameworkFullComparer();
-        private readonly ConcurrentDictionary<int, bool> _cache;
+        private readonly ConcurrentDictionary<Tuple<NuGetFramework, NuGetFramework>, bool> _cache;
 
         public CompatibilityProvider(IFrameworkNameProvider mappings)
         {
             _mappings = mappings;
             _expander = new FrameworkExpander(mappings);
-            _cache = new ConcurrentDictionary<int, bool>();
+            _cache = new ConcurrentDictionary<Tuple<NuGetFramework, NuGetFramework>, bool>();
         }
 
         /// <summary>
@@ -41,12 +40,10 @@ namespace NuGet.Frameworks
             }
 
             // check the cache for a solution
-            int cacheKey = GetCacheKey(target, candidate);
-
-            bool? result = _cache.GetOrAdd(cacheKey, (Func<int, bool>)((key) =>
+            bool? result = _cache.GetOrAdd(Tuple.Create(target, candidate), key =>
             {
                 return IsCompatibleCore(target, candidate) == true;
-            }));
+            });
 
             return result == true;
         }
@@ -206,18 +203,6 @@ namespace NuGet.Frameworks
         private static bool IsVersionCompatible(Version target, Version candidate)
         {
             return candidate == FrameworkConstants.EmptyVersion || candidate <= target;
-        }
-
-        private static int GetCacheKey(NuGetFramework target, NuGetFramework candidate)
-        {
-            HashCombiner combiner = new HashCombiner();
-
-            // create the cache key from the hash codes of both frameworks
-            // the order is important here since compatibility is usually one way
-            combiner.AddObject(target);
-            combiner.AddObject(candidate);
-
-            return combiner.CombinedHash;
         }
 
         /// <summary>
