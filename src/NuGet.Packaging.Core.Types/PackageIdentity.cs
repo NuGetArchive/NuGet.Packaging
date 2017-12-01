@@ -134,7 +134,9 @@ namespace NuGet.Packaging.Core
         /// </summary>
         public override string ToString()
         {
-            return String.Format(CultureInfo.InvariantCulture, ToStringFormat, Id, Version.ToNormalizedString());
+            return HasVersion
+                ? String.Format(CultureInfo.InvariantCulture, ToStringFormat, Id, Version.ToNormalizedString())
+                : Id;
         }
     }
 }
